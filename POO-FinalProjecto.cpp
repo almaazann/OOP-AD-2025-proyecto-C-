@@ -10,9 +10,9 @@
         private:
         string tipo;
         string estilo;
-        public:
         string nombre;
 
+        public:
         Medicamento(string nombre_, string tipo_, string estilo_): nombre(nombre_), tipo(tipo_), estilo(estilo_){}
 
         Medicamento(): nombre("paracetamol"), tipo("para: NADA"), estilo("no sabemos"){}
@@ -24,6 +24,10 @@
         void tratamiento() const{
             cout << "TRATAMIENTO EMPEZADO" << endl;
             cout << "Medicamento usado: " << nombre << "\nRecomendado " << tipo << "\nDel tipo" << estilo << endl;
+        }
+
+        const string& getNombre() const{
+            return nombre;
         }
     };
 
@@ -106,12 +110,13 @@
     };
 
     class Expediente{
-        public: 
+        private: 
         char* historial;
         size_t len;
         string Estado_salud;
         Doctor* miDoc;
 
+        public:
         void allocCopy(const char* h, size_t n){
             historial = new char[n + 1];
             memcpy(historial, h, n + 1);
@@ -141,9 +146,7 @@
         }
 
             //Copy constructor
-            Expediente(const Expediente& other){
-                Estado_salud = other.Estado_salud;
-                miDoc = other.miDoc;
+            Expediente(const Expediente& other) : Estado_salud(other.Estado_salud),miDoc(other.miDoc) {
                 allocCopy(other.historial, other.len);
             }
 
@@ -154,6 +157,28 @@
                 allocCopy(rhs.historial, rhs.len);
                 Estado_salud = rhs.Estado_salud;
                 miDoc = rhs.miDoc;
+                return *this;
+            }
+            //Move constructor
+            Expediente(Expediente&& other) noexcept: historial(other.historial),len(other.len),Estado_salud(move(other.Estado_salud)),miDoc(other.miDoc)
+            {
+                other.historial = nullptr;
+                other.len = 0;
+                other.miDoc = nullptr;
+            }
+
+            //Move assignment
+            Expediente& operator=(Expediente&& rhs) noexcept{
+                if(this != &rhs){
+                    delete[] historial;
+                    historial = rhs.historial;
+                    len = rhs.len;
+                    Estado_salud = move(rhs.Estado_salud);
+                    miDoc = rhs.miDoc;
+                    rhs.historial = nullptr;
+                    rhs.len = 0;
+                    rhs.miDoc = nullptr;
+                }
                 return *this;
             }
 
